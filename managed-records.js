@@ -26,11 +26,13 @@ var rdata={};
 */
  
 
-export const retrieve = (options) =>
+//export const retrieve = (options) =>
+function retrieve(options)
 {
-    console.log("STARTING RETRIEVE with optons page  " + options.page +  "  colors "+options.colors);
-    
+    //console.log("STARTING RETRIEVE with optons page  " + options.page +  "  colors "+options.colors);
+     
     var colors;
+    var offset=0;
     var ctr=0;
     var idnow=0;
     var closedPrimaryCount=0;
@@ -54,28 +56,31 @@ export const retrieve = (options) =>
         
         {
              var cl = options.colors;
+            if(options.page > 1)
+                    offset = (options.page -1)* 10 + 1;
+                           
    
             if((typeof(options.page) !== 'undefined' && options.page)&& (typeof(options.colors) !== "undefined"))
                 {
                      colors = cl.map(function(cl){return "&color[]="+cl});
      
-                    urlnow = `${window.path}?limit=10&offset=${options.page* 10}${colors}`;
+                    urlnow = `${window.path}?limit=10&offset=${offset}${colors}`;
                 }
             if((typeof(options.page)== 'undefined' || options.page)&& (typeof(options.colors) !== "undefined"))
 
                 {
                     colors = cl.map(function(cl){return "&color[]="+cl});
-                    urlnow = `${window.path}?limit=10&offset=0${colors}`;
+                    urlnow = `${window.path}?limit=10&offset=${offset}${colors}`;
                 }
             if(typeof(options.colors)== "undefined")
                 {
-                    urlnow = `${window.path}?limit=10&offset=${options.page* 10}`;
+                    urlnow = `${window.path}?limit=10&offset=${offset}`;
                 }
 
 
             if((typeof(options.page)== 'undefined' || options.page)&&(typeof(options.colors)== "undefined"))
                 {
-                    urlnow = `${window.path}?limit=10&offset=0`;
+                    urlnow = `${window.path}?limit=10&offset=${offset}`;
                 }
         }
     
@@ -119,7 +124,7 @@ console.log(descriptors1.property1.value);
                         rdata.map(function(dat){
                             
                             
-                            idArr.push(dat.id);
+                            idArr.push(JSON.stringify(dat.id));
                         
                         })
                           
@@ -128,16 +133,17 @@ console.log(descriptors1.property1.value);
                         
                              rdata.filter(dt=>dt.disposition=="open").map(function(dat){
                                  var prim = false;
-                                 if(dat.color == "red"  || dat.color == "blue" || dat.color == "green")
+                                 if(dat.color == "red"  || dat.color == "blue" || dat.color == "yellow")
                                       prim = true;
                                  dat.isPrimary=prim;
-                openArr.push("id:"+dat.id+","+"color:"+dat.color+","+"disposition:"+dat.disposition+","+"isPrimary:"+dat.isPrimary);
+                //openArr.push(("id:"+dat.id+","+"color:"+dat.color+","+"disposition:"+dat.disposition+","+"isPrimary:"+dat.isPrimary).split("'"));
+                                 openArr.push(dat);
                              });
                         
                           retdata.open = openArr;
                         
                rdata.filter(function(dt){
-                        if(dt.disposition=="closed" && (dt.color == "red"  || dt.color == "blue" || dt.color == "green"))
+                        if(dt.disposition=="closed" && (dt.color == "red"  || dt.color == "blue" || dt.color == "yellow"))
                             ctr++;
                         return ctr;
                     })
@@ -145,7 +151,9 @@ console.log(descriptors1.property1.value);
                    
                            retdata.closedPrimaryCount = ctr;
                         
-                        console.log(retdata);
+                        console.log("\n\n URL NOW IS  "+urlnow);
+                        console.log("\n\n " +JSON.stringify(retdata));
+                      
                         
                         return retdata;
                         
